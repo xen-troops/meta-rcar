@@ -52,6 +52,7 @@ SRC_URI_append = " \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0059-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SIX", "1", " file://0060-arm64-dts-Gen3-view-boards-stream-from-6-cam.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_SEVEN", "1", " file://0061-arm64-dts-Gen3-view-boards-stream-from-7-cam.patch", "", d)} \
+    file://genivi.cfg \
 "
 
 SRC_URI_append_h3ulcb = " \
