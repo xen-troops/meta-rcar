@@ -9,6 +9,18 @@ LIC_FILES_CHKSUM = "file://Licenses/README;md5=c7383a594871c03da76b3707929d2919"
 
 SRC_URI = "${UBOOT_URL};branch=${BRANCH}"
 SRCREV = "7c0de7c397808a4cc7307ca8aa183ab2fec04265"
+
+SRC_URI_RPC_HYPERFLASH = " \
+    file://0008-ARM-rcar_gen3-Add-RPC-flash-definitions.patch \
+    file://0009-mtd-Add-RPC-HyperFlash-support.patch \
+    file://0010-board-renesas-salvator-x-Enable-RPC-clock.patch \
+    file://0011-board-renesas-ulcb-Enable-RPC-clock.patch \
+    file://0012-configs-r8a7795_salvator-x-Enable-RPC-HyperFlash-sup.patch \
+    file://0013-configs-r8a7796_salvator-x-Enable-RPC-HyperFlash-sup.patch \
+    file://0014-configs-h3ulcb-Enable-RPC-HyperFlash-support.patch \
+    file://0015-configs-m3ulcb-Enable-RPC-HyperFlash-support.patch \
+"
+
 SRC_URI_append = " \
     file://0001-arch-armv8-SoC-target-select-move.patch \
     file://0002-mmc-add-Micron-eMMC-fixup.patch \
@@ -22,7 +34,9 @@ SRC_URI_append = " \
     file://0005-configs-rcar-gen3-common-Enable-askenv-command.patch \
     file://0006-configs-rcar-gen3-common-Enable-hush-parser.patch \
     file://0007-configs-rcar-gen3-common-Enable-GPT-support.patch \
+    ${@base_conditional("DISABLE_NONSECURE_RPC_ACCESS", "1", "", " ${SRC_URI_RPC_HYPERFLASH}", d)} \
 "
+
 SRC_URI_append_h3ulcb = '${@ \
     " file://0005-uboot-H3ULCB-support-fixed-PHY.patch \
       file://0006-uboot-H3ULCB-console-on-scif1.patch \
