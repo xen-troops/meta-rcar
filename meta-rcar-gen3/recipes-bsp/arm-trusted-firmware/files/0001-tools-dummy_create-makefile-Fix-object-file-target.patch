@@ -1,0 +1,30 @@
+From 143089d9e78d806820a85853f4ca405c8deb8eaf Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 7 Sep 2016 02:11:41 +0300
+Subject: [PATCH 2/2] tools: dummy_create: makefile: Fix object file target
+
+This fixes object file target.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ tools/dummy_create/makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/dummy_create/makefile b/tools/dummy_create/makefile
+index 5017f0c..b32ed9d 100644
+--- a/tools/dummy_create/makefile
++++ b/tools/dummy_create/makefile
+@@ -117,8 +117,8 @@ $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
+ # Compile
+ ###################################################
+ 
+-%.o:../%.c
+-	$(CC) -c -I $< -o $@
++%.o: %.c
++	$(CC) $(CFLAGS) -c $< -o $@
+ 
+ .PHONY: clean
+ clean:
+-- 
+1.9.3
+

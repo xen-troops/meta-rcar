@@ -15,7 +15,10 @@ SRC_URI = \
     "git://github.com/renesas-rcar/arm-trusted-firmware.git;branch=${BRANCH}"
 SRC_URI_append = \
     " file://0001-Add-RCAR_BKUP_ENABLE-flag.patch \
-      file://0002-plat-rcar-bl2_secure_setting-Enable-access-to-RPC.patch"
+      file://0002-plat-rcar-bl2_secure_setting-Enable-access-to-RPC.patch \
+      file://0001-tools-dummy_create-makefile-Fix-object-file-target.patch \
+"
+
 SRCREV = "3ad02acfc46bfbebb4a5986b250b31a1f871d2b1"
 SRC_URI_append_m3ulcb = \
     " file://0003-IPL-ddrinit-rev-0.20rc8.patch \
