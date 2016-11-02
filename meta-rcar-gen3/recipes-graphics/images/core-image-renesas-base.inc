@@ -80,3 +80,8 @@ ICCOM_PKGS = " \
 IMAGE_INSTALL_append = " \
     ${@base_conditional("USE_ICCOM", "1", " ${ICCOM_PKGS}", "", d)} \
 "
+
+# RPC HyperFlash support
+IMAGE_INSTALL_append = " \
+    ${@base_conditional("DISABLE_NONSECURE_RPC_ACCESS", "1", "", " kernel-module-rcar-rpc-hyperflash", d)} \
+"
