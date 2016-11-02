@@ -1,0 +1,28 @@
+From d26edbbf50868a39e840c5f775a9e48f063ec638 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Tue, 20 Sep 2016 23:20:15 +0300
+Subject: [PATCH 04/15] configs: rcar-gen3-common: Enable setexpr command
+
+This enables "setexpr" command, which can be used
+to evaluate expressions.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ include/configs/rcar-gen3-common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
+index 7b75562..aaeaf57 100644
+--- a/include/configs/rcar-gen3-common.h
++++ b/include/configs/rcar-gen3-common.h
+@@ -35,6 +35,7 @@
+ 
+ #define CONFIG_CMD_SOURCE
+ #define CONFIG_CMD_ECHO
++#define CONFIG_CMD_SETEXPR
+ 
+ #define CONFIG_SYS_THUMB_BUILD
+ #define CONFIG_SYS_GENERIC_BOARD
+-- 
+1.9.3
+

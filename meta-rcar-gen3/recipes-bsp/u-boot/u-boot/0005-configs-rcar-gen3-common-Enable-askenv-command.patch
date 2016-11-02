@@ -1,0 +1,28 @@
+From 5e9a9694daa132d7b4acfd334fe3fe7f3a25b839 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 21 Sep 2016 02:19:13 +0300
+Subject: [PATCH 05/15] configs: rcar-gen3-common: Enable askenv command
+
+This enables "askenv" command, which can be used
+in U-Boot scripts for user input.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ include/configs/rcar-gen3-common.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
+index aaeaf57..2c2a5a5 100644
+--- a/include/configs/rcar-gen3-common.h
++++ b/include/configs/rcar-gen3-common.h
+@@ -36,6 +36,7 @@
+ #define CONFIG_CMD_SOURCE
+ #define CONFIG_CMD_ECHO
+ #define CONFIG_CMD_SETEXPR
++#define CONFIG_CMD_ASKENV
+ 
+ #define CONFIG_SYS_THUMB_BUILD
+ #define CONFIG_SYS_GENERIC_BOARD
+-- 
+1.9.3
+

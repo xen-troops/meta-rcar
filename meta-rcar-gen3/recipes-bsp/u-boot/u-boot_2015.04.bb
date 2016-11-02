@@ -15,6 +15,13 @@ SRC_URI_append = " \
     file://0003-board-renesas-Add-H3ULCB-board.patch \
     file://0004-board-renesas-Add-M3ULCB-board.patch \
     file://0009-rcar-gen3-add-CMD_GPIO.patch \
+    file://0001-common-cmd_source.c-Fix-the-source-command-failure-u.patch \
+    file://0002-configs-rcar-gen3-common-Enable-U-Boot-scripts.patch \
+    file://0003-configs-rcar-gen3-common-Enable-echo-command.patch \
+    file://0004-configs-rcar-gen3-common-Enable-setexpr-command.patch \
+    file://0005-configs-rcar-gen3-common-Enable-askenv-command.patch \
+    file://0006-configs-rcar-gen3-common-Enable-hush-parser.patch \
+    file://0007-configs-rcar-gen3-common-Enable-GPT-support.patch \
 "
 SRC_URI_append_h3ulcb = '${@ \
     " file://0005-uboot-H3ULCB-support-fixed-PHY.patch \

@@ -1,0 +1,32 @@
+From 04c11b42dc2eca5858e393c80e15d72c73440fb9 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 21 Oct 2016 01:21:55 +0300
+Subject: [PATCH 07/15] configs: rcar-gen3-common: Enable GPT support
+
+This enables GPT support in rcar-gen3-common.h.
+It can be used for disk partitioning in U-Boot.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ include/configs/rcar-gen3-common.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/configs/rcar-gen3-common.h b/include/configs/rcar-gen3-common.h
+index aa692e5..0fc46ab 100644
+--- a/include/configs/rcar-gen3-common.h
++++ b/include/configs/rcar-gen3-common.h
+@@ -38,6 +38,11 @@
+ #define CONFIG_CMD_SETEXPR
+ #define CONFIG_CMD_ASKENV
+ 
++#define CONFIG_EFI_PARTITION
++#define CONFIG_PARTITION_UUIDS
++#define CONFIG_RANDOM_UUID
++#define CONFIG_CMD_GPT
++
+ #define CONFIG_SYS_THUMB_BUILD
+ #define CONFIG_SYS_GENERIC_BOARD
+ 
+-- 
+1.9.3
+
