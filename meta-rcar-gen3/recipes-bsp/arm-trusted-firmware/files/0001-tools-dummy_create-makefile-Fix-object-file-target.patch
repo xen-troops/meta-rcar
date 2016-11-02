@@ -1,7 +1,7 @@
-From 143089d9e78d806820a85853f4ca405c8deb8eaf Mon Sep 17 00:00:00 2001
+From cdf253c399de893d5bd14d398b12b15711579cd9 Mon Sep 17 00:00:00 2001
 From: Valentine Barshak <valentine.barshak@cogentembedded.com>
 Date: Wed, 7 Sep 2016 02:11:41 +0300
-Subject: [PATCH 2/2] tools: dummy_create: makefile: Fix object file target
+Subject: [PATCH 1/2] tools: dummy_create: makefile: Fix object file target
 
 This fixes object file target.
 

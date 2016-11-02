@@ -1,0 +1,56 @@
+From 8ea206c571ef8a98986dc324f957b3a0e8d652eb Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 2 Nov 2016 18:42:01 +0300
+Subject: [PATCH 2/2] plat: renesas: rcar: Make RPC secure settings optional
+
+This adds RCAR_DISABLE_NONSECURE_RPC_ACCESS make variable,
+which disables non-secure RPC access when set.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ plat/renesas/rcar/bl2_secure_setting.c | 4 ++--
+ plat/renesas/rcar/platform.mk          | 6 ++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/plat/renesas/rcar/bl2_secure_setting.c b/plat/renesas/rcar/bl2_secure_setting.c
+index 7240b3e..30c2b5f 100644
+--- a/plat/renesas/rcar/bl2_secure_setting.c
++++ b/plat/renesas/rcar/bl2_secure_setting.c
+@@ -105,7 +105,7 @@ static const struct {
+ 	/** Security attribute setting for slave ports 12 */
+ 	/*	{SEC_SEL12,		0xFFFFFFFFU},*/
+ 
+-#if 0
++#if (RCAR_DISABLE_NONSECURE_RPC_ACCESS == 1)
+ 	/** Security attribute setting for slave ports 13 */
+ 	/* Bit22: RPC slave ports. */
+ 	/*        0: registers can be accessed from secure resource only. */
+@@ -230,7 +230,7 @@ static const struct {
+ 	/*	{SEC_GRP0COND12,	0x00000000U},*/
+ 	/*	{SEC_GRP1COND12,	0x00000000U},*/
+ 
+-#if 0
++#if (RCAR_DISABLE_NONSECURE_RPC_ACCESS == 1)
+ 	/** Security group 0 attribute setting for slave ports 13 */
+ 	/** Security group 1 attribute setting for slave ports 13 */
+ 	/* Bit22: RPC slave ports. */
+diff --git a/plat/renesas/rcar/platform.mk b/plat/renesas/rcar/platform.mk
+index c5a4aab..0826fe5 100644
+--- a/plat/renesas/rcar/platform.mk
++++ b/plat/renesas/rcar/platform.mk
+@@ -190,6 +190,12 @@ RCAR_BKUP_ENABLE := 1
+ endif
+ $(eval $(call add_define,RCAR_BKUP_ENABLE))
+ 
++# Process RCAR_DISABLE_NONSECURE_RPC_ACCESS flag
++ifndef RCAR_DISABLE_NONSECURE_RPC_ACCESS
++RCAR_DISABLE_NONSECURE_RPC_ACCESS := 0
++endif
++$(eval $(call add_define,RCAR_DISABLE_NONSECURE_RPC_ACCESS))
++
+ include plat/renesas/rcar/ddr/ddr.mk
+ include plat/renesas/rcar/qos/qos.mk
+ include plat/renesas/rcar/pfc/pfc.mk
+-- 
+1.9.3
+

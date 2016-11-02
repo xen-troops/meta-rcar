@@ -69,6 +69,12 @@ Configure for systemd init in local.conf:
     DISTRO_FEATURES_append = " systemd"
     VIRTUAL-RUNTIME_init_manager = "systemd"
 
+RPC HyperFlash access is available in U-Boot and Linux by default. It can be used
+for updating bootloader images and writing Linux kernel and DTB to the HyperFlash.
+Add the following line to local.conf to disable non-secure RPC access if necessary:
+
+    DISABLE_NONSECURE_RPC_ACCESS = "1"
+
 Enable Cortex-A53 CPU cores in local.conf if necessary:
 
     CA57CA53BOOT = "1"
