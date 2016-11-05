@@ -69,6 +69,10 @@ Configure for systemd init in local.conf:
     DISTRO_FEATURES_append = " systemd"
     VIRTUAL-RUNTIME_init_manager = "systemd"
 
+Enable Cortex-A53 CPU cores in local.conf if necessary:
+
+    CA57CA53BOOT = "1"
+
 Build the target file system image using bitbake:
 
     $ bitbake core-image-minimal
