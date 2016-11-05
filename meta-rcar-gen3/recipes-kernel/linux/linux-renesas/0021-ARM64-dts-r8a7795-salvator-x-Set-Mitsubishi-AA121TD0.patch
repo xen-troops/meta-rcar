@@ -1,0 +1,51 @@
+From 0e493ff5740a222fab5bafa40dc9ba3daa1ab543 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 4 Nov 2016 23:01:15 +0300
+Subject: [PATCH 21/24] ARM64: dts: r8a7795-salvator-x: Set Mitsubishi
+ AA121TD01 1280x800 panel
+
+This sets LVDS LCD parameters for Mitsubishi AA121TD01 1280x800 panel.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a77xx-panel.dtsi | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a77xx-panel.dtsi b/arch/arm64/boot/dts/renesas/r8a77xx-panel.dtsi
+index c7497bb..976161f 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77xx-panel.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a77xx-panel.dtsi
+@@ -13,20 +13,20 @@
+ 	lvds: lvds {
+ 		compatible = "lvds-connector";
+ 
+-		width-mm = <210>;
+-		height-mm = <158>;
++		width-mm = <261>;
++		height-mm = <163>;
+ 
+ 		panel-timing {
+-			/* 1024x768 @60Hz */
+-			clock-frequency = <65000000>;
+-			hactive = <1024>;
+-			vactive = <768>;
+-			hsync-len = <136>;
++			/* 1280x800 @60Hz */
++			clock-frequency = <71000000>;
++			hactive = <1280>;
++			vactive = <800>;
++			hsync-len = <70>;
+ 			hfront-porch = <20>;
+-			hback-porch = <160>;
+-			vsync-len = <6>;
++			hback-porch = <70>;
++			vsync-len = <5>;
+ 			vfront-porch = <3>;
+-			vback-porch = <29>;
++			vback-porch = <15>;
+ 		};
+ 	};
+ };
+-- 
+1.9.3
+

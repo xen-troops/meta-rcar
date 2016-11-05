@@ -68,6 +68,9 @@ SRC_URI_append = " \
     file://0016-ARM64-dts-r8a7795-salvator-x-view-Use-r8a77xx-panel..patch \
     file://0017-ARM64-dts-r8a7796-salvator-x-Use-r8a77xx-panel.dtsi.patch \
     file://0018-ARM64-dts-r8a7796-salvator-x-view-Use-r8a77xx-panel..patch \
+    ${@base_conditional("LCD_PANEL_MODEL", "TX31D200VM0BAA", "file://0019-ARM64-dts-r8a7795-salvator-x-Set-KOE-TX31D200VM0BAA-.patch", "", d)} \
+    ${@base_conditional("LCD_PANEL_MODEL", "AA121TD01", "file://0021-ARM64-dts-r8a7795-salvator-x-Set-Mitsubishi-AA121TD0.patch", "", d)} \
+    ${@base_conditional("LCD_PANEL_MODEL", "RFWSVGAT-7x0AP-APL", "file://0023-ARM64-dts-r8a7795-salvator-x-Set-Okaya-RFWSVGAT-7x0A.patch", "", d)} \
 "
 
 SRC_URI_append_h3ulcb = " \

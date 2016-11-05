@@ -73,6 +73,21 @@ Enable Cortex-A53 CPU cores in local.conf if necessary:
 
     CA57CA53BOOT = "1"
 
+Select one of the LVDS LCD panel types in local.conf in case an LCD display
+other than the default 1024x768@60Hz panel is used.
+
+Select KOE TX31D200VM0BAA 1280x480 LCD panel in local.conf:
+
+    LCD_PANEL_MODEL = "TX31D200VM0BAA"
+
+Select Mitsubishi AA121TD01 1280x800 panel in local.conf:
+
+    LCD_PANEL_MODEL = "AA121TD01"
+
+Select Okaya RFWSVGAT-7x0AP-APL 1024x600 panel in local.conf:
+
+    LCD_PANEL_MODEL = "RFWSVGAT-7x0AP-APL"
+
 Build the target file system image using bitbake:
 
     $ bitbake core-image-minimal
