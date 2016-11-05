@@ -54,6 +54,20 @@ SRC_URI_append = " \
     file://0002-phy-Enable-USB_PHY-for-PHY_RCAR_GEN3_USB2.patch \
     file://0003-ARM64-dts-r8a7795-salvator-x-Fix-a-typo-in-the-hdmi-.patch \
     file://0004-ARM64-dts-r8a7796-salvator-x-Fix-a-typo-in-the-hdmi-.patch \
+    file://0005-ARM64-dts-r8a7795-salvator-x-Add-gpio-keys-device-no.patch \
+    file://0006-ARM64-dts-r8a7795-salvator-x-view-Add-gpio-keys-devi.patch \
+    file://0007-ARM64-dts-r8a7796-salvator-x-Add-gpio-keys-device-no.patch \
+    file://0008-ARM64-dts-r8a7796-salvator-x-view-Add-gpio-keys-devi.patch \
+    file://0009-ARM64-dts-r8a7795-h3ulcb-Add-more-buttons-to-gpio-ke.patch \
+    file://0010-ARM64-dts-r8a7795-h3ulcb-view-Add-more-buttons-to-gp.patch \
+    file://0011-ARM64-dts-r8a7795-h3ulcb-had-Add-more-buttons-to-gpi.patch \
+    file://0012-ARM64-dts-r8a7796-m3ulcb-Add-more-buttons-to-gpio-ke.patch \
+    file://0013-ARM64-dts-r8a7796-m3ulcb-view-Add-more-buttons-to-gp.patch \
+    file://0014-ARM64-dts-renesas-Add-r8a77xx-panel.dtsi.patch \
+    file://0015-ARM64-dts-r8a7795-salvator-x-Use-r8a77xx-panel.dtsi.patch \
+    file://0016-ARM64-dts-r8a7795-salvator-x-view-Use-r8a77xx-panel..patch \
+    file://0017-ARM64-dts-r8a7796-salvator-x-Use-r8a77xx-panel.dtsi.patch \
+    file://0018-ARM64-dts-r8a7796-salvator-x-view-Use-r8a77xx-panel..patch \
 "
 
 SRC_URI_append_h3ulcb = " \
