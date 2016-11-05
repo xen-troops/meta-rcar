@@ -1,0 +1,29 @@
+From 23e18e74965f680cb7d535fae6ca058ba51ae839 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 6 May 2016 16:13:44 +0300
+Subject: [PATCH 03/24] ARM64: dts: r8a7795-salvator-x: Fix a typo in the
+ hdmi-in node name
+
+The "hdmi-in" I2C address is 0x34, use it the device node name.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts
+index b9a67ec..cc41151 100644
+--- a/arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts
++++ b/arch/arm64/boot/dts/renesas/r8a7795-salvator-x.dts
+@@ -701,7 +701,7 @@
+ 		};
+ 	};
+ 
+-	hdmi-in@70 {
++	hdmi-in@34 {
+ 		compatible = "adi,adv7482";
+ 		reg = <0x34>;
+ 
+-- 
+1.9.3
+

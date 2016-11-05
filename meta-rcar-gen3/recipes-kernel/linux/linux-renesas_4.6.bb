@@ -52,6 +52,8 @@ SRC_URI_append = " \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0059-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
     file://0001-media-i2c-max9286_max9271_ov106xx-Fix-building-as-a-.patch \
     file://0002-phy-Enable-USB_PHY-for-PHY_RCAR_GEN3_USB2.patch \
+    file://0003-ARM64-dts-r8a7795-salvator-x-Fix-a-typo-in-the-hdmi-.patch \
+    file://0004-ARM64-dts-r8a7796-salvator-x-Fix-a-typo-in-the-hdmi-.patch \
 "
 
 SRC_URI_append_h3ulcb = " \
