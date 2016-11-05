@@ -33,6 +33,8 @@ PACKAGECONFIG_append = " \
 
 PACKAGECONFIG[v4l2] = " --enable-v4l2,,libmediactl-v4l2,kernel-module-vsp2driver"
 
+WESTONINI="${D}/${sysconfdir}/xdg/weston/weston.ini"
+
 do_install_append_rcar-gen3() {
     # install weston.ini as sample settings of v4l2-renderer
     if [ "X${USE_MULTIMEDIA}" = "X1" ]; then
@@ -42,11 +44,31 @@ do_install_append_rcar-gen3() {
 
         # install weston.ini as sample settings of v4l2-renderer
         install -d ${D}/${sysconfdir}/xdg/weston
-        install -m 644 ${WORKDIR}/weston_v4l2.ini ${D}/${sysconfdir}/xdg/weston/weston.ini
+        install -m 644 ${WORKDIR}/weston_v4l2.ini ${WESTONINI}
     else
         # install weston.ini as sample settings of gl-renderer
         install -d ${D}/${sysconfdir}/xdg/weston
-        install -m 644 ${WORKDIR}/weston.ini ${D}/${sysconfdir}/xdg/weston/
+        install -m 644 ${WORKDIR}/weston.ini ${WESTONINI}
+    fi
+}
+
+do_install_append() {
+    [ x${WESTON_PANEL_LOCATION} = x ] || \
+    if grep -q "\[shell\]" ${WESTONINI}; then
+        sed -e "/platform-location/d;/\[shell\]/aplatform-location=${WESTON_PANEL_LOCATION}" -i ${WESTONINI}
+    else
+        echo  >> ${WESTONINI}
+        echo "[shell]" >> ${WESTONINI}
+        echo "platform-location=${WESTON_PANEL_LOCATION}" >> ${WESTONINI}
+    fi
+
+    [ x${WESTON_BACKGROUND_COLOR} = x ] || \
+    if grep -q "\[shell\]" ${WESTONINI}; then
+        sed -e "/background-color/d;/\[shell\]/abackground-color=${WESTON_BACKGROUND_COLOR}" -i ${WESTONINI}
+    else
+        echo  >> ${WESTONINI}
+        echo "[shell]" >> ${WESTONINI}
+        echo "background-color=${WESTON_BACKGROUND_COLOR}" >> ${WESTONINI}
     fi
 }
 

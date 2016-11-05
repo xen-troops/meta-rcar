@@ -94,6 +94,15 @@ Select Okaya RFWSVGAT-7x0AP-APL 1024x600 panel in local.conf:
 
     LCD_PANEL_MODEL = "RFWSVGAT-7x0AP-APL"
 
+Disable Weston panel in local.conf if necessary:
+
+    WESTON_PANEL_LOCATION = "none"
+
+Select Weston background color in local.conf if necessary.
+Any color in the "0xAARRGGBB" format can be selected:
+
+    WESTON_BACKGROUND_COLOR = "0xff000000"
+
 Build the target file system image using bitbake:
 
     $ bitbake core-image-minimal
