@@ -50,6 +50,8 @@ SRC_URI_append = " \
     ${@base_conditional("LVDSCAMERA_ONE", "1", " file://0057-arm64-dts-Gen3-view-boards-stream-from-1-cam.patch", "", d)} \
     ${@base_conditional("LVDSCAMERA_FIVE", "1", " file://0058-arm64-dts-Gen3-view-boards-stream-from-5-cam.patch", "", d)} \
     ${@base_conditional("RAVB_DEBUG", "1", " file://0059-net-ethernet-renesas-ravb-packets-dump.patch", "", d)} \
+    file://0001-media-i2c-max9286_max9271_ov106xx-Fix-building-as-a-.patch \
+    file://0002-phy-Enable-USB_PHY-for-PHY_RCAR_GEN3_USB2.patch \
 "
 
 SRC_URI_append_h3ulcb = " \

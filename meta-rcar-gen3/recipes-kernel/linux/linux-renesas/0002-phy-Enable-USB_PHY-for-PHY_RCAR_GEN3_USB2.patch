@@ -1,0 +1,29 @@
+From 93148abdf82906f1289e635f79cbcac81276b8a8 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Wed, 27 Jul 2016 20:39:15 +0300
+Subject: [PATCH 02/24] phy: Enable USB_PHY for PHY_RCAR_GEN3_USB2
+
+This enables USB_PHY for PHY_RCAR_GEN3_USB2 driver which helps to avoid
+undefined usb_add_phy_dev and usb_remove_phy symbol errors
+when R-Car Gen3 USB2 phy is built as a module.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/phy/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/phy/Kconfig b/drivers/phy/Kconfig
+index b869b98..8fc0df1 100644
+--- a/drivers/phy/Kconfig
++++ b/drivers/phy/Kconfig
+@@ -132,6 +132,7 @@ config PHY_RCAR_GEN3_USB2
+ 	depends on ARCH_RENESAS
+ 	depends on EXTCON
+ 	select GENERIC_PHY
++	select USB_PHY
+ 	help
+ 	  Support for USB 2.0 PHY found on Renesas R-Car generation 3 SoCs.
+ 
+-- 
+1.9.3
+
