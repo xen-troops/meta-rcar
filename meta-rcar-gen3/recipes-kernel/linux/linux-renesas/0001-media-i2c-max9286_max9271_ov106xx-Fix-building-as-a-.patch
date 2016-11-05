@@ -1,0 +1,162 @@
+From 4db161364b163fc3224d8ee14ea862c817097096 Mon Sep 17 00:00:00 2001
+From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+Date: Fri, 4 Nov 2016 05:50:55 +0300
+Subject: [PATCH 01/24] media: i2c: max9286_max9271_ov106xx: Fix building as a
+ module
+
+This splits the max9286_max9271_ov106xx driver into three separate
+modules. Since module_init and module_exit is defined in all three
+files, the max9286_max9271_ov106xx driver fails to compile as a module
+when the other files are simply included in the max9286_max9271_ov106xx.
+A module cannot have multiple module_init or module_exit definitions.
+
+Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
+---
+ drivers/media/i2c/soc_camera/Kconfig                       |  6 ++----
+ drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c     | 10 ++++++----
+ drivers/media/i2c/soc_camera/max9286_max9271_ov106xx.c     | 14 ++++++++++++--
+ .../media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c   | 10 ++++++----
+ 4 files changed, 26 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/media/i2c/soc_camera/Kconfig b/drivers/media/i2c/soc_camera/Kconfig
+index 0528ef7..3ecba22 100644
+--- a/drivers/media/i2c/soc_camera/Kconfig
++++ b/drivers/media/i2c/soc_camera/Kconfig
+@@ -16,12 +16,12 @@ config SOC_CAMERA_MAX9286_MAX9271
+ config SOC_CAMERA_MAX9286_MAX9271_OV106XX
+ 	tristate "max9286-max9271-ov106xx camera support"
+ 	depends on SOC_CAMERA && SOC_CAMERA_MAX9286_MAX9271 && I2C
++	select SOC_CAMERA_MAX9286_MAX9271_OV10635
++	select SOC_CAMERA_MAX9286_MAX9271_OV490_OV10640
+ 	help
+ 	  This is an MAXIM max9286-max9271 with runtime detected
+ 	  OmniVision ov10635 or ov490-ov10640 sensor camera driver
+ 
+-if !SOC_CAMERA_MAX9286_MAX9271_OV106XX
+-
+ config SOC_CAMERA_MAX9286_MAX9271_OV10635
+ 	tristate "max9286-max9271-ov10635 camera support"
+ 	depends on SOC_CAMERA && SOC_CAMERA_MAX9286_MAX9271 && I2C
+@@ -36,8 +36,6 @@ config SOC_CAMERA_MAX9286_MAX9271_OV490_OV10640
+ 	  This is an MAXIM max9286-max9271 with OmniVision ov490-ov10640 sensor
+ 	  camera driver
+ 
+-endif
+-
+ config SOC_CAMERA_MT9M001
+ 	tristate "mt9m001 support"
+ 	depends on SOC_CAMERA && I2C
+diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
+index b1f4ad6..9b08189 100644
+--- a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
++++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
+@@ -471,8 +471,7 @@ static int ov10635_initialize(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static int ov10635_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *did)
++int ov10635_probe(struct i2c_client *client, const struct i2c_device_id *did)
+ {
+ 	struct ov10635_priv *priv;
+ 	int ret;
+@@ -545,8 +544,9 @@ err_init:
+ 	dev_dbg(&client->dev, "failed to probe ov10635 @ 0x%02x\n", OV10635_I2C_ADDR);
+ 	return ret;
+ }
++EXPORT_SYMBOL(ov10635_probe);
+ 
+-static int ov10635_remove(struct i2c_client *client)
++int ov10635_remove(struct i2c_client *client)
+ {
+ 	struct ov10635_priv *priv = i2c_get_clientdata(client);
+ 
+@@ -558,14 +558,16 @@ static int ov10635_remove(struct i2c_client *client)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(ov10635_remove);
+ 
+-static void ov10635_shutdown(struct i2c_client *client)
++void ov10635_shutdown(struct i2c_client *client)
+ {
+ 	struct ov10635_priv *priv = i2c_get_clientdata(client);
+ 
+ 	/* make sure stream off during shutdown (reset/reboot) */
+ 	ov10635_s_stream(&priv->sd, 0);
+ }
++EXPORT_SYMBOL(ov10635_shutdown);
+ 
+ static const struct i2c_device_id ov10635_id[] = {
+ 	{ "ov10635", 0 },
+diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov106xx.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov106xx.c
+index 14e1a1f..0dcdc6a 100644
+--- a/drivers/media/i2c/soc_camera/max9286_max9271_ov106xx.c
++++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov106xx.c
+@@ -9,8 +9,18 @@
+  * option) any later version.
+  */
+ 
+-#include "max9286_max9271_ov10635.c"
+-#include "max9286_max9271_ov490_ov10640.c"
++#include <linux/i2c.h>
++#include <linux/module.h>
++
++#include "max9286_max9271.h"
++
++extern int ov10635_probe(struct i2c_client *, const struct i2c_device_id *);
++extern int ov10635_remove(struct i2c_client *);
++extern void ov10635_shutdown(struct i2c_client *);
++
++extern int ov490_probe(struct i2c_client *, const struct i2c_device_id *);
++extern int ov490_remove(struct i2c_client *);
++extern void ov490_shutdown(struct i2c_client *);
+ 
+ static enum {
+ 	ID_OV10635,
+diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
+index 5444114..a413717 100644
+--- a/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
++++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
+@@ -347,8 +347,7 @@ out:
+ 	return err;
+ }
+ 
+-static int ov490_probe(struct i2c_client *client,
+-		       const struct i2c_device_id *did)
++int ov490_probe(struct i2c_client *client, const struct i2c_device_id *did)
+ {
+ 	struct ov490_priv *priv;
+ 	int ret;
+@@ -404,8 +403,9 @@ cleanup:
+ 	dev_dbg(&client->dev, "failed to probe ov490 @ 0x%02x\n", OV490_I2C_ADDR);
+ 	return ret;
+ }
++EXPORT_SYMBOL(ov490_probe);
+ 
+-static int ov490_remove(struct i2c_client *client)
++int ov490_remove(struct i2c_client *client)
+ {
+ 	struct ov490_priv *priv = i2c_get_clientdata(client);
+ 
+@@ -416,14 +416,16 @@ static int ov490_remove(struct i2c_client *client)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(ov490_remove);
+ 
+-static void ov490_shutdown(struct i2c_client *client)
++void ov490_shutdown(struct i2c_client *client)
+ {
+ 	struct ov490_priv *priv = i2c_get_clientdata(client);
+ 
+ 	/* make sure stream off during shutdown (reset/reboot) */
+ 	ov490_s_stream(&priv->sd, 0);
+ }
++EXPORT_SYMBOL(ov490_shutdown);
+ 
+ static const struct i2c_device_id ov490_id[] = {
+ 	{ "ov490-ov10640", 0 },
+-- 
+1.9.3
+
