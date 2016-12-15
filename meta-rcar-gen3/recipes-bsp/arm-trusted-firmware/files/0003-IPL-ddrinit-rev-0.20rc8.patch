@@ -11966,7 +11966,7 @@ index a29c28b..8627450 100644
 +#include "micro_wait.h"
 +
 +#define DDR_BACKUPMODE
-+ #define FATAL_MSG(x) NOTICE(x)
++ #define FATAL_MSG(x) ERROR(x)
 +/*******************************************************************************
 + *	variables
 + ******************************************************************************/
@@ -14113,13 +14113,13 @@ index a29c28b..8627450 100644
 +	***********************************************************************/
 +#ifdef DDR_BACKUPMODE
 +	if(ddrBackup) {
-+		tf_printf("[WARM_BOOT]");
++		MSG_LF("[WARM_BOOT]");
 +	} else {
-+		tf_printf("[COLD_BOOT]");
++		MSG_LF("[COLD_BOOT]");
 +	}
 +	err=dram_update_boot_status(ddrBackup);
 +	if(err){
-+		tf_printf("[BOOT_STATUS_UPDATE_ERROR]");
++		FATAL_MSG("[BOOT_STATUS_UPDATE_ERROR]");
 +		return INITDRAM_ERR_I;
 +	}
  #endif
@@ -15020,7 +15020,7 @@ index a29c28b..8627450 100644
 +	/***********************************************************************
 +	initialize DDRPHY 
 +	***********************************************************************/
-+	tf_printf("..%d\n",failcount);
++	MSG_LF("..%d\n",failcount);
 +	if(failcount==0)
 +		return INITDRAM_OK;
 +	else
