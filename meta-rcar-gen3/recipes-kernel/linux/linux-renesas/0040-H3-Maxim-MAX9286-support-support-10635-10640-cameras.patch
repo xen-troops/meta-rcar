@@ -11,16 +11,16 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile              |    4 +
  drivers/media/i2c/soc_camera/max9286_max9271.c     |  383 +++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h     |  231 ++++
- .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  615 +++++++++++
+ .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  623 +++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov10635.h | 1149 ++++++++++++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov106xx.c |  106 ++
- .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  712 ++++++++++++
+ .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  758 +++++++++++++
  .../i2c/soc_camera/max9286_max9271_ov490_ov10640.h |   35 +
  drivers/media/platform/soc_camera/rcar_csi2.c      |  106 +-
  drivers/media/platform/soc_camera/rcar_vin.c       |    4 +
  drivers/media/platform/soc_camera/soc_mediabus.c   |   16 +
  include/media/drv-intf/soc_mediabus.h              |    3 +
- 13 files changed, 3327 insertions(+), 69 deletions(-)
+ 13 files changed, 3381 insertions(+), 69 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
@@ -714,10 +714,10 @@ index 0000000..988a04f
 \ No newline at end of file
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
 new file mode 100644
-index 0000000..7ca3f3f
+index 0000000..e206800
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
-@@ -0,0 +1,606 @@
+@@ -0,0 +1,623 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov10635 sensor camera driver
 + *
@@ -763,6 +763,7 @@ index 0000000..7ca3f3f
 +	int				height;
 +	int				fps_denominator;
 +	int				init_complete;
++	u8				id[5];
 +};
 +
 +static inline struct ov10635_priv *to_ov10635(const struct i2c_client *client)
@@ -1126,15 +1127,14 @@ index 0000000..7ca3f3f
 +	.pad	= &ov10635_subdev_pad_ops,
 +};
 +
-+static ssize_t ov10635_otp_id_read(struct device *dev,
-+				   struct device_attribute *attr, char *buf)
++static void ov10635_otp_id_read(struct i2c_client *client)
 +{
-+	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
-+	struct i2c_client *client = v4l2_get_subdevdata(sd);
-+	u8 id[5];
++	struct ov10635_priv *priv = to_ov10635(client);
 +	int i;
 +
 +	/* read camera id from OTP memory */
++#if 0 /* disable/reset OTP makes worse: colors become incorect randomly */
++	u8 id[5];
 +	maxim_reg16_write(client, 0x100, 1);
 +	for (i = 0; i < 5; i++)
 +		maxim_reg16_write(client, 0x3d00 + i, 0x00);
@@ -1143,14 +1143,29 @@ index 0000000..7ca3f3f
 +	mdelay(15);
 +	for (i = 0; i < 5; i++)
 +		maxim_reg16_read(client, 0x3d00 + i, &id[i]);
-+	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x\n",
-+			id[0], id[1], id[2], id[3], id[4]);
++#else
++	maxim_reg16_write(client, 0x3d10, 1);
++	for (i = 0; i < 5; i++)
++		maxim_reg16_read(client, 0x3d00 + i, &priv->id[i]);
++#endif
 +}
 +
-+static DEVICE_ATTR(otp_id, S_IRUGO, ov10635_otp_id_read, NULL);
++static ssize_t ov10635_otp_id_show(struct device *dev,
++				   struct device_attribute *attr, char *buf)
++{
++	struct v4l2_subdev *sd = i2c_get_clientdata(to_i2c_client(dev));
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov10635_priv *priv = to_ov10635(client);
++
++	return snprintf(buf, 32, "%02x:%02x:%02x:%02x:%02x\n",
++			priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4]);
++}
++
++static DEVICE_ATTR(otp_id, S_IRUGO, ov10635_otp_id_show, NULL);
 +
 +static int ov10635_initialize(struct i2c_client *client)
 +{
++	struct ov10635_priv *priv = to_ov10635(client);
 +	u8 pid, ver;
 +	int ret;
 +	int tmp_addr, cam_idx = client->addr - CAM;
@@ -1175,9 +1190,6 @@ index 0000000..7ca3f3f
 +		return -ENODEV;
 +	}
 +
-+	dev_info(&client->dev, "ov10635 Product ID %x Manufacturer ID %x\n",
-+		 pid, ver);
-+
 +	/* s/w reset sensor */
 +	maxim_reg16_write(client, 0x103, 0x1);
 +	udelay(100);
@@ -1186,6 +1198,11 @@ index 0000000..7ca3f3f
 +			       ARRAY_SIZE(ov10635_regs_wizard));
 +	if (ret)
 +		return ret;
++
++	ov10635_otp_id_read(client);
++
++	dev_info(&client->dev, "ov10635 Product ID %x Manufacturer ID %x OTP_ID %02x:%02x:%02x:%02x:%02x\n",
++		 pid, ver, priv->id[0], priv->id[1], priv->id[2], priv->id[3], priv->id[4]);
 +
 +	/* switch to GMSL serial_link for streaming video */
 +	tmp_addr = client->addr;
@@ -2593,10 +2610,10 @@ index 0000000..14e1a1f
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
 new file mode 100644
-index 0000000..9f55ee8
+index 0000000..ef9fbef
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
-@@ -0,0 +1,712 @@
+@@ -0,0 +1,758 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2748,6 +2765,50 @@ index 0000000..9f55ee8
 +	return 0;
 +}
 +
++static int ov490_s_crop(struct v4l2_subdev *sd, const struct v4l2_crop *a)
++{
++	struct v4l2_crop a_writable = *a;
++	struct v4l2_rect *rect = &a_writable.c;
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov490_priv *priv = to_ov490(client);
++
++	rect->left = 0;
++	rect->top = 0;
++	rect->width = priv->width;
++	rect->height = priv->height;
++
++	return 0;
++}
++
++static int ov490_g_crop(struct v4l2_subdev *sd, struct v4l2_crop *a)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov490_priv *priv = to_ov490(client);
++
++	a->c.left = 0;
++	a->c.top = 0;
++	a->c.width = priv->width;
++	a->c.height = priv->height;
++	a->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++
++	return 0;
++}
++
++static int ov490_cropcap(struct v4l2_subdev *sd, struct v4l2_cropcap *a)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov490_priv *priv = to_ov490(client);
++
++	a->bounds.left = 0;
++	a->bounds.top = 0;
++	a->bounds.width = priv->width;
++	a->bounds.height = priv->height;
++	a->defrect = a->bounds;
++	a->type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
++
++	return 0;
++}
++
 +static int ov490_g_mbus_config(struct v4l2_subdev *sd,
 +			       struct v4l2_mbus_config *cfg)
 +{
@@ -2809,7 +2870,6 @@ index 0000000..9f55ee8
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov490_priv *priv = to_ov490(client);
 +	int ret = -EINVAL;
-+	u8 val = 0;
 +
 +	if (!priv->init_complete)
 +		return 0;
@@ -3044,6 +3104,9 @@ index 0000000..9f55ee8
 +
 +static struct v4l2_subdev_video_ops ov490_video_ops = {
 +	.s_stream	= ov490_s_stream,
++	.cropcap	= ov490_cropcap,
++	.g_crop		= ov490_g_crop,
++	.s_crop		= ov490_s_crop,
 +	.g_mbus_config	= ov490_g_mbus_config,
 +};
 +
