@@ -11,17 +11,18 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile              |    4 +
  drivers/media/i2c/soc_camera/max9286_max9271.c     |  467 ++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h     |  231 ++++
- .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  602 ++++++++++
+ .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  613 +++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov10635.h | 1149 ++++++++++++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov106xx.c |   93 ++
  .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  737 +++++++++++++
  .../i2c/soc_camera/max9286_max9271_ov490_ov10640.h |   35 +
  drivers/media/platform/soc_camera/rcar_csi2.c      |  159 ++-
- drivers/media/platform/soc_camera/rcar_vin.c       |   64 +-
- drivers/media/platform/soc_camera/soc_camera.c     |    2 +-
+ drivers/media/platform/soc_camera/rcar_vin.c       |   78 +-
+ drivers/media/platform/soc_camera/soc_camera.c     |   15 +-
  drivers/media/platform/soc_camera/soc_mediabus.c   |   16 +
  include/media/drv-intf/soc_mediabus.h              |    3 +
- 14 files changed, 3497 insertions(+), 97 deletions(-)
+ include/media/soc_camera.h                         |    1 +
+ 15 files changed, 3536 insertions(+), 97 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
@@ -88,7 +89,7 @@ index d0421fe..05944d8 100644
  obj-$(CONFIG_SOC_CAMERA_MT9T031)	+= mt9t031.o
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271.c b/drivers/media/i2c/soc_camera/max9286_max9271.c
 new file mode 100644
-index 0000000..82d3f9c
+index 0000000..65abd11
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271.c
 @@ -0,0 +1,467 @@
@@ -467,7 +468,7 @@ index 0000000..82d3f9c
 +		priv->pclk_rising_edge = true;
 +	if (of_property_read_bool(np, "maxim,pclk-falling-edge"))
 +		priv->pclk_rising_edge = false;
-+		if (of_property_read_u32(np, "maxim,timeout", &priv->timeout))
++	if (of_property_read_u32(np, "maxim,timeout", &priv->timeout))
 +		priv->timeout = 100;
 +
 +	dev_info(&client->dev, "LINKs=%d, LANES=%d, RESETB GPIO=%d, FSYNC mode=%s, FSYNC period=%d, PCLK edge=%s\n",
@@ -799,10 +800,10 @@ index 0000000..988a04f
 \ No newline at end of file
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
 new file mode 100644
-index 0000000..3125384
+index 0000000..ddde08e
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
-@@ -0,0 +1,602 @@
+@@ -0,0 +1,613 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov10635 sensor camera driver
 + *
@@ -953,6 +954,16 @@ index 0000000..3125384
 +		return -EINVAL;
 +
 +	code->code = MEDIA_BUS_FMT_YUYV8_2X8;
++
++	return 0;
++}
++
++static int ov10635_get_edid(struct v4l2_subdev *sd, struct v4l2_edid *edid)
++{
++	struct i2c_client *client = v4l2_get_subdevdata(sd);
++	struct ov10635_priv *priv = to_ov10635(client);
++
++	memcpy(edid->edid, priv->id, 5);
 +
 +	return 0;
 +}
@@ -1187,6 +1198,7 @@ index 0000000..3125384
 +};
 +
 +static const struct v4l2_subdev_pad_ops ov10635_subdev_pad_ops = {
++	.get_edid	= ov10635_get_edid,
 +	.enum_mbus_code	= ov10635_enum_mbus_code,
 +	.get_fmt	= ov10635_get_fmt,
 +	.set_fmt	= ov10635_set_fmt,
@@ -3723,7 +3735,7 @@ index 851a4ca..fde7cad 100644
  
  	return 0;
 diff --git a/drivers/media/platform/soc_camera/rcar_vin.c b/drivers/media/platform/soc_camera/rcar_vin.c
-index 5fa9e26..daab7ff 100644
+index 5fa9e26..cc73811 100644
 --- a/drivers/media/platform/soc_camera/rcar_vin.c
 +++ b/drivers/media/platform/soc_camera/rcar_vin.c
 @@ -730,10 +730,13 @@ struct rcar_vin_priv {
@@ -3820,7 +3832,35 @@ index 5fa9e26..daab7ff 100644
  
  	dev_dbg(icd->parent, "R-Car VIN driver detached from camera %d\n",
  		icd->devnum);
-@@ -2659,7 +2698,9 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2434,6 +2473,19 @@ static int rcar_vin_cropcap(struct soc_camera_device *icd,
+ 	return 0;
+ }
+ 
++static int rcar_vin_get_edid(struct soc_camera_device *icd,
++			     struct v4l2_edid *edid)
++{
++	struct v4l2_subdev *sd = soc_camera_to_subdev(icd);
++	int ret;
++
++	ret = v4l2_subdev_call(sd, pad, get_edid, edid);
++	if (ret < 0)
++		return ret;
++
++	return 0;
++}
++
+ static struct soc_camera_host_ops rcar_vin_host_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.add		= rcar_vin_add_device,
+@@ -2450,6 +2502,7 @@ static struct soc_camera_host_ops rcar_vin_host_ops = {
+ 	.init_videobuf2	= rcar_vin_init_videobuf2,
+ 	.get_selection	= rcar_vin_get_selection,
+ 	.cropcap	= rcar_vin_cropcap,
++	.get_edid	= rcar_vin_get_edid,
+ };
+ 
+ #ifdef CONFIG_OF
+@@ -2659,7 +2712,9 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	const char *str;
  	unsigned int i;
  	struct device_node *epn = NULL, *ren = NULL;
@@ -3830,7 +3870,7 @@ index 5fa9e26..daab7ff 100644
  
  	match = of_match_device(of_match_ptr(rcar_vin_of_table), &pdev->dev);
  
-@@ -2686,13 +2727,17 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2686,13 +2741,17 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		dev_dbg(&pdev->dev, "node name:%s\n",
  			of_node_full_name(ren->parent));
  
@@ -3852,7 +3892,7 @@ index 5fa9e26..daab7ff 100644
  	}
  
  	ret = v4l2_of_parse_endpoint(np, &ep);
-@@ -2748,6 +2793,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2748,6 +2807,7 @@ static int rcar_vin_probe(struct platform_device *pdev)
  	priv->ici.drv_name = dev_name(&pdev->dev);
  	priv->ici.ops = &rcar_vin_host_ops;
  	priv->csi_sync = false;
@@ -3860,7 +3900,7 @@ index 5fa9e26..daab7ff 100644
  
  	priv->pdata_flags = pdata_flags;
  	if (!match) {
-@@ -2928,7 +2974,13 @@ static int rcar_vin_probe(struct platform_device *pdev)
+@@ -2928,7 +2988,13 @@ static int rcar_vin_probe(struct platform_device *pdev)
  		goto cleanup;
  
  	if (csi_use) {
@@ -3876,10 +3916,29 @@ index 5fa9e26..daab7ff 100644
  			goto cleanup;
  	}
 diff --git a/drivers/media/platform/soc_camera/soc_camera.c b/drivers/media/platform/soc_camera/soc_camera.c
-index 46c7186..9f56aac 100644
+index 46c7186..d2f7a8c 100644
 --- a/drivers/media/platform/soc_camera/soc_camera.c
 +++ b/drivers/media/platform/soc_camera/soc_camera.c
-@@ -1732,7 +1732,7 @@ static void scan_of_host(struct soc_camera_host *ici)
+@@ -1174,6 +1174,18 @@ static int soc_camera_s_parm(struct file *file, void *fh,
+ 	return -ENOIOCTLCMD;
+ }
+ 
++static int soc_camera_g_edid(struct file *file, void *fh,
++			     struct v4l2_edid *edid)
++{
++	struct soc_camera_device *icd = file->private_data;
++	struct soc_camera_host *ici = to_soc_camera_host(icd->parent);
++
++	if (ici->ops->get_edid)
++		return ici->ops->get_edid(icd, edid);
++
++	return -ENOIOCTLCMD;
++}
++
+ static int soc_camera_probe(struct soc_camera_host *ici,
+ 			    struct soc_camera_device *icd);
+ 
+@@ -1732,7 +1744,7 @@ static void scan_of_host(struct soc_camera_host *ici)
  		of_node_put(ren);
  
  		if (i) {
@@ -3888,6 +3947,14 @@ index 46c7186..9f56aac 100644
  			break;
  		}
  	}
+@@ -2133,6 +2145,7 @@ static const struct v4l2_ioctl_ops soc_camera_ioctl_ops = {
+ 	.vidioc_s_selection	 = soc_camera_s_selection,
+ 	.vidioc_g_parm		 = soc_camera_g_parm,
+ 	.vidioc_s_parm		 = soc_camera_s_parm,
++	.vidioc_g_edid		 = soc_camera_g_edid,
+ };
+ 
+ static int video_dev_create(struct soc_camera_device *icd)
 diff --git a/drivers/media/platform/soc_camera/soc_mediabus.c b/drivers/media/platform/soc_camera/soc_mediabus.c
 index e3e665e..84754a4 100644
 --- a/drivers/media/platform/soc_camera/soc_mediabus.c
@@ -3950,6 +4017,18 @@ index 2ff7737..e5f3f53 100644
  	SOC_MBUS_PACKING_EXTEND16,
  	SOC_MBUS_PACKING_VARIABLE,
  	SOC_MBUS_PACKING_1_5X8,
+diff --git a/include/media/soc_camera.h b/include/media/soc_camera.h
+index 97aa133..8f9da7e 100644
+--- a/include/media/soc_camera.h
++++ b/include/media/soc_camera.h
+@@ -128,6 +128,7 @@ struct soc_camera_host_ops {
+ 	int (*set_parm)(struct soc_camera_device *, struct v4l2_streamparm *);
+ 	int (*enum_framesizes)(struct soc_camera_device *, struct v4l2_frmsizeenum *);
+ 	unsigned int (*poll)(struct file *, poll_table *);
++	int (*get_edid)(struct soc_camera_device *, struct v4l2_edid *);
+ };
+ 
+ #define SOCAM_SENSOR_INVERT_PCLK	(1 << 0)
 -- 
 1.9.1
 
