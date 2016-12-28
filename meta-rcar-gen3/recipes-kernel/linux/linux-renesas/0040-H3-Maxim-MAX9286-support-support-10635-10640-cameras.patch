@@ -11,10 +11,10 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/i2c/soc_camera/Makefile              |    4 +
  drivers/media/i2c/soc_camera/max9286_max9271.c     |  467 ++++++++
  drivers/media/i2c/soc_camera/max9286_max9271.h     |  231 ++++
- .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  604 ++++++++++
+ .../media/i2c/soc_camera/max9286_max9271_ov10635.c |  610 +++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov10635.h | 1149 ++++++++++++++++++++
  .../media/i2c/soc_camera/max9286_max9271_ov106xx.c |   93 ++
- .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  813 ++++++++++++++
+ .../i2c/soc_camera/max9286_max9271_ov490_ov10640.c |  819 ++++++++++++++
  .../i2c/soc_camera/max9286_max9271_ov490_ov10640.h |   35 +
  drivers/media/platform/soc_camera/rcar_csi2.c      |  159 ++-
  drivers/media/platform/soc_camera/rcar_vin.c       |   78 +-
@@ -22,7 +22,7 @@ Signed-off-by: Vladimir Barinov <vladimir.barinov@cogentembedded.com>
  drivers/media/platform/soc_camera/soc_mediabus.c   |   16 +
  include/media/drv-intf/soc_mediabus.h              |    3 +
  include/media/soc_camera.h                         |    1 +
- 15 files changed, 3603 insertions(+), 97 deletions(-)
+ 15 files changed, 3615 insertions(+), 97 deletions(-)
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.c
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271.h
  create mode 100644 drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
@@ -800,10 +800,10 @@ index 0000000..988a04f
 \ No newline at end of file
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
 new file mode 100644
-index 0000000..7acce02
+index 0000000..4096629
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov10635.c
-@@ -0,0 +1,604 @@
+@@ -0,0 +1,610 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov10635 sensor camera driver
 + *
@@ -962,8 +962,14 @@ index 0000000..7acce02
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov10635_priv *priv = to_ov10635(client);
++	int cam_idx = client->addr - CAM;
 +
 +	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = maxim_map[0][cam_idx] == DES0 ? 0 : 1;
++	edid->edid[7] = maxim_map[0][cam_idx] == DES0 ? cam_idx : cam_idx - 4;
++	edid->edid[8] = OV10635_VERSION_REG >> 8;
++	edid->edid[9] = OV10635_VERSION_REG & 0xff;
 +
 +	return 0;
 +}
@@ -2664,10 +2670,10 @@ index 0000000..eea6d43
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
 new file mode 100644
-index 0000000..b105b71
+index 0000000..bce603c
 --- /dev/null
 +++ b/drivers/media/i2c/soc_camera/max9286_max9271_ov490_ov10640.c
-@@ -0,0 +1,813 @@
+@@ -0,0 +1,819 @@
 +/*
 + * MAXIM max9286-max9271 with OmniVision ov490-ov10640 sensor camera driver
 + *
@@ -2810,8 +2816,14 @@ index 0000000..b105b71
 +{
 +	struct i2c_client *client = v4l2_get_subdevdata(sd);
 +	struct ov490_priv *priv = to_ov490(client);
++	int cam_idx = client->addr - CAM;
 +
 +	memcpy(edid->edid, priv->id, 6);
++
++	edid->edid[6] = maxim_map[0][cam_idx] == DES0 ? 0 : 1;
++	edid->edid[7] = maxim_map[0][cam_idx] == DES0 ? cam_idx : cam_idx - 4;
++	edid->edid[8] = OV490_VERSION_REG >> 8;
++	edid->edid[9] = OV490_VERSION_REG & 0xff;
 +
 +	return 0;
 +}
