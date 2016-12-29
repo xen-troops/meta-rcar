@@ -9,7 +9,7 @@ PN = "gstreamer1.0-plugin-vspfilter"
 
 EXTRA_AUTORECONF_append = " -I ${STAGING_DATADIR}/aclocal"
 
-VSPFILTER_CONF_r8a7795 = "gstvspfilter-${MACHINE}_r8a7795.conf"
+VSPFILTER_CONF_r8a7795 = "gstvspfilter-salvator-x_r8a7795.conf"
 VSPFILTER_CONF_r8a7796 = "gstvspfilter-${MACHINE}_r8a7796.conf"
 
 SRC_URI = " \
