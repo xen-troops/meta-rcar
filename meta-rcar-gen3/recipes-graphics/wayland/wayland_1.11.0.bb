@@ -20,7 +20,7 @@ inherit autotools pkgconfig
 
 BBCLASSEXTEND = "native nativesdk"
 
-DEPENDS = "expat libffi wayland-native"
+DEPENDS = "expat libffi wayland-native libxml2"
 
 EXTRA_OECONF = "--disable-documentation --with-host-scanner"
 
